@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Agency File Name Generator</title>
+  <style>
+    body { font-family: Arial, sans-serif; max-width: 600px; margin: 40px auto; padding: 0 20px; line-height: 1.6; }
+    h1 { text-align: center; }
+    label { display: block; margin-top: 20px; font-weight: bold; }
+    input[type="text"], input[type="date"], select { width: 100%; padding: 8px; margin-top: 5px; box-sizing: border-box; }
+    .radio-group { margin-top: 5px; }
+    .output { margin-top: 20px; font-size: 1.2em; font-weight: bold; background: #f4f4f4; padding: 10px; border-radius: 5px; display: flex; justify-content: space-between; align-items: center; }
+    button { padding: 8px 12px; margin-left: 10px; cursor: pointer; }
+    .success { color: green; margin-top: 10px; font-weight: bold; }
+  </style>
+</head>
+<body>
+
+  <h1>Agency File Name Generator</h1>
+  
+  <label>Client Name:</label>
+  <input type="text" id="clientName" placeholder="e.g., Heineken">
+
+  <label>Document Name:</label>
+  <input type="text" id="docName" placeholder="e.g., Event Recap Deck">
+
+  <label>Status:</label>
+  <div class="radio-group">
+    <input type="radio" name="status" value="today" id="today" checked> Today’s Date
+    <input type="radio" name="status" value="custom" id="custom"> Custom Date
+    <input type="radio" name="status" value="final" id="final"> FINAL
+  </div>
+
+  <input type="date" id="customDate" style="display:none; margin-top:10px;">
+
+  <div class="output">
+    <span id="generatedName">Your file name will appear here</span>
+    <button id="copyBtn">Copy</button>
+  </div>
+
+  <div class="success" id="successMsg" style="display:none;">Done!</div>
+
+  <script>
+    const clientNameInput = document.getElementById('clientName');
+    const docNameInput = document.getElementById('docName');
+    const todayRadio = document.getElementById('today');
+    const customRadio = document.getElementById('custom');
+    const finalRadio = document.getElementById('final');
+    const customDateInput = document.getElementById('customDate');
+    const output = document.getElementById('generatedName');
+    const copyBtn = document.getElementById('copyBtn');
+    const successMsg = document.getElementById('successMsg');
+
+    function toTitleCase(str) {
+      return str.replace(/\w\S*/g, txt => txt.charAt(0).toUpperCase() + txt.slice(1).toLowerCase());
+    }
+
+    function removeSpaces(str) {
+      return str.replace(/\s+/g, '');
+    }
+
+    function formatDate(date) {
+      let d = new Date(date);
+      let mm = String(d.getMonth() + 1).padStart(2, '0');
+      let dd = String(d.getDate()).padStart(2, '0');
+      return `${mm}-${dd}`;
+    }
+
+    function generateFileName() {
+      let client = removeSpaces(toTitleCase(clientNameInput.value));
+      let doc = removeSpaces(toTitleCase(docNameInput.value));
+      let status = '';
+
+      if (todayRadio.checked) {
+        status = formatDate(new Date());
+        customDateInput.style.display = 'none';
+      } else if (customRadio.checked) {
+        customDateInput.style.display = 'block';
+        if (customDateInput.value) {
+          status = formatDate(customDateInput.value);
+        } else {
+          status = 'MM-DD';
+        }
+      } else if (finalRadio.checked) {
+        status = 'FINAL';
+        customDateInput.style.display = 'none';
+      }
+
+      output.textContent = `${client}_${doc}_${status}`;
+      successMsg.style.display = 'none';
+    }
+
+    clientNameInput.addEventListener('input', generateFileName);
+    docNameInput.addEventListener('input', generateFileName);
+    todayRadio.addEventListener('change', generateFileName);
+    customRadio.addEventListener('change', generateFileName);
+    finalRadio.addEventListener('change', generateFileName);
+    customDateInput.addEventListener('change', generateFileName);
+
+    copyBtn.addEventListener('click', () => {
+      navigator.clipboard.writeText(output.textContent).then(() => {
+        successMsg.style.display = 'block';
+        setTimeout(() => { successMsg.style.display = 'none'; }, 2000);
+      });
+    });
+
+    // initialize
+    generateFileName();
+  </script>
+
+</body>
+</html>
