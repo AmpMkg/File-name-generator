@@ -37,10 +37,10 @@
   <input type="text" id="version" placeholder="e.g., V01">
 
   <label>Department:</label>
-  <input type="text" id="department" placeholder="e.g., Marketing">
+  <input type="text" id="department" placeholder="CST">
 
   <label>Owner Initials:</label>
-  <input type="text" id="owner" placeholder="e.g., LC">
+  <input type="text" id="owner" placeholder="AP">
 
   <div class="output">
     <span id="generatedName">Your file name will appear here</span>
@@ -81,7 +81,7 @@
     function generateFileName() {
       let client = removeSpaces(toTitleCase(clientNameInput.value));
       let doc = removeSpaces(toTitleCase(docNameInput.value));
-      let dept = removeSpaces(toTitleCase(departmentInput.value));
+      let dept = removeSpaces(departmentInput.value.toUpperCase()); // always ALL CAPS
       let owner = removeSpaces(ownerInput.value);
       let version = removeSpaces(versionInput.value);
 
