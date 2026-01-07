@@ -33,8 +33,10 @@
 
   <input type="date" id="customDate" style="display:none; margin-top:10px;">
 
-  <label>Version Number:</label>
-  <input type="text" id="version" placeholder="e.g., V01">
+  <div id="versionContainer">
+    <label>Version Number:</label>
+    <input type="text" id="version" placeholder="e.g., V01">
+  </div>
 
   <label>Department:</label>
   <input type="text" id="department" placeholder="CST">
@@ -57,6 +59,7 @@
     const finalRadio = document.getElementById('final');
     const customDateInput = document.getElementById('customDate');
     const versionInput = document.getElementById('version');
+    const versionContainer = document.getElementById('versionContainer');
     const departmentInput = document.getElementById('department');
     const ownerInput = document.getElementById('owner');
     const output = document.getElementById('generatedName');
@@ -71,7 +74,6 @@
       return str.replace(/\s+/g, '');
     }
 
-    // Updated function to avoid timezone issues
     function formatDate(dateStr) {
       if (!dateStr) return 'MM-DD';
       const parts = dateStr.split('-'); // [YYYY, MM, DD]
@@ -81,9 +83,8 @@
     function generateFileName() {
       let client = removeSpaces(toTitleCase(clientNameInput.value));
       let doc = removeSpaces(toTitleCase(docNameInput.value));
-      let dept = removeSpaces(departmentInput.value.toUpperCase()); // always ALL CAPS
+      let dept = removeSpaces(departmentInput.value.toUpperCase());
       let owner = removeSpaces(ownerInput.value);
-      let version = removeSpaces(versionInput.value);
 
       let status = '';
       if (todayRadio.checked) {
@@ -92,15 +93,22 @@
         const dd = String(today.getDate()).padStart(2, '0');
         status = `${mm}-${dd}`;
         customDateInput.style.display = 'none';
+        versionContainer.style.display = 'block'; // show version
       } else if (customRadio.checked) {
         customDateInput.style.display = 'block';
         status = formatDate(customDateInput.value);
+        versionContainer.style.display = 'block'; // show version
       } else if (finalRadio.checked) {
         status = 'FINAL';
         customDateInput.style.display = 'none';
+        versionContainer.style.display = 'none'; // hide version
       }
 
-      output.textContent = `${client}_${doc}_${status}_${version}_${dept}_${owner}`;
+      // Include version only if visible
+      const version = (versionContainer.style.display === 'none') ? '' : removeSpaces(versionInput.value);
+      const versionPart = version ? `_${version}` : '';
+
+      output.textContent = `${client}_${doc}_${status}${versionPart}_${dept}_${owner}`;
       successMsg.style.display = 'none';
     }
 
