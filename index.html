@@ -4,10 +4,10 @@
   <meta charset="UTF-8">
   <title>Agency File Name Generator</title>
   <style>
-    body { font-family: Arial, sans-serif; max-width: 600px; margin: 40px auto; padding: 0 20px; line-height: 1.6; }
+    body { font-family: Arial, sans-serif; max-width: 700px; margin: 40px auto; padding: 0 20px; line-height: 1.6; }
     h1 { text-align: center; }
     label { display: block; margin-top: 20px; font-weight: bold; }
-    input[type="text"], input[type="date"], select { width: 100%; padding: 8px; margin-top: 5px; box-sizing: border-box; }
+    input[type="text"], input[type="number"], input[type="date"], select { width: 100%; padding: 8px; margin-top: 5px; box-sizing: border-box; }
     .radio-group { margin-top: 5px; }
     .output { margin-top: 20px; font-size: 1.2em; font-weight: bold; background: #f4f4f4; padding: 10px; border-radius: 5px; display: flex; justify-content: space-between; align-items: center; }
     button { padding: 8px 12px; margin-left: 10px; cursor: pointer; }
@@ -33,6 +33,15 @@
 
   <input type="date" id="customDate" style="display:none; margin-top:10px;">
 
+  <label>Version Number:</label>
+  <input type="text" id="version" placeholder="e.g., V01">
+
+  <label>Department:</label>
+  <input type="text" id="department" placeholder="e.g., Marketing">
+
+  <label>Owner Initials:</label>
+  <input type="text" id="owner" placeholder="e.g., LC">
+
   <div class="output">
     <span id="generatedName">Your file name will appear here</span>
     <button id="copyBtn">Copy</button>
@@ -47,6 +56,9 @@
     const customRadio = document.getElementById('custom');
     const finalRadio = document.getElementById('final');
     const customDateInput = document.getElementById('customDate');
+    const versionInput = document.getElementById('version');
+    const departmentInput = document.getElementById('department');
+    const ownerInput = document.getElementById('owner');
     const output = document.getElementById('generatedName');
     const copyBtn = document.getElementById('copyBtn');
     const successMsg = document.getElementById('successMsg');
@@ -69,8 +81,11 @@
     function generateFileName() {
       let client = removeSpaces(toTitleCase(clientNameInput.value));
       let doc = removeSpaces(toTitleCase(docNameInput.value));
-      let status = '';
+      let dept = removeSpaces(toTitleCase(departmentInput.value));
+      let owner = removeSpaces(ownerInput.value);
+      let version = removeSpaces(versionInput.value);
 
+      let status = '';
       if (todayRadio.checked) {
         status = formatDate(new Date());
         customDateInput.style.display = 'none';
@@ -86,15 +101,16 @@
         customDateInput.style.display = 'none';
       }
 
-      output.textContent = `${client}_${doc}_${status}`;
+      output.textContent = `${client}_${doc}_${status}_${version}_${dept}_${owner}`;
       successMsg.style.display = 'none';
     }
 
-    clientNameInput.addEventListener('input', generateFileName);
-    docNameInput.addEventListener('input', generateFileName);
-    todayRadio.addEventListener('change', generateFileName);
-    customRadio.addEventListener('change', generateFileName);
-    finalRadio.addEventListener('change', generateFileName);
+    [clientNameInput, docNameInput, versionInput, departmentInput, ownerInput].forEach(input =>
+      input.addEventListener('input', generateFileName)
+    );
+    [todayRadio, customRadio, finalRadio].forEach(radio =>
+      radio.addEventListener('change', generateFileName)
+    );
     customDateInput.addEventListener('change', generateFileName);
 
     copyBtn.addEventListener('click', () => {
