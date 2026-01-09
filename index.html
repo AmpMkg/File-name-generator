@@ -10,7 +10,7 @@
       padding: 40px;
     }
     .container {
-      max-width: 540px;
+      max-width: 560px;
       background: #ffffff;
       padding: 30px;
       border-radius: 8px;
@@ -29,18 +29,14 @@
       padding: 8px;
       margin-top: 5px;
     }
-    .toggle-group {
+    .toggle-group,
+    .button-group {
       display: flex;
       gap: 15px;
       margin-top: 10px;
     }
     .toggle-group label {
       font-weight: normal;
-    }
-    .button-group {
-      display: flex;
-      gap: 10px;
-      margin-top: 10px;
     }
     .button-group button {
       flex: 1;
@@ -55,6 +51,9 @@
       margin-top: 20px;
       font-weight: bold;
       word-break: break-all;
+      background: #f0f0f0;
+      padding: 10px;
+      border-radius: 4px;
     }
     .success {
       color: green;
@@ -69,21 +68,21 @@
     <!-- Internal / External -->
     <label>File Type</label>
     <div class="toggle-group">
-      <label><input type="radio" name="fileType" value="internal" checked> Internal</label>
-      <label><input type="radio" name="fileType" value="external"> External</label>
+      <label><input type="radio" name="fileType" value="internal" checked onchange="updatePreview()"> Internal</label>
+      <label><input type="radio" name="fileType" value="external" onchange="updatePreview()"> External</label>
     </div>
 
     <label>Client Name</label>
-    <input type="text" id="clientName" placeholder="Heineken">
+    <input type="text" id="clientName" placeholder="Heineken" oninput="updatePreview()">
 
     <label>Document Name</label>
-    <input type="text" id="documentName" placeholder="EventRecap">
+    <input type="text" id="documentName" placeholder="EventRecap" oninput="updatePreview()">
 
     <label>Department</label>
-    <input type="text" id="department" placeholder="CST">
+    <input type="text" id="department" placeholder="CST" oninput="updatePreview()">
 
     <label>Owner Initials</label>
-    <input type="text" id="initials" placeholder="AP">
+    <input type="text" id="initials" placeholder="AP" oninput="updatePreview()">
 
     <!-- Date buttons -->
     <label>Date</label>
@@ -93,12 +92,11 @@
       <button type="button" onclick="setDateMode('final')">FINAL</button>
     </div>
 
-    <input type="date" id="customDate" style="display:none;">
+    <input type="date" id="customDate" style="display:none;" onchange="updatePreview()">
 
     <label id="versionLabel">Version Number</label>
-    <input type="text" id="version" placeholder="v1">
+    <input type="text" id="version" placeholder="v1" oninput="updatePreview()">
 
-    <button onclick="generateFileName()">Generate File Name</button>
     <button onclick="copyFileName()">Copy File Name</button>
 
     <div class="output" id="output"></div>
@@ -119,15 +117,19 @@
         customDate.style.display = "block";
         versionInput.style.display = "block";
         versionLabel.style.display = "block";
-      } else if (mode === "final") {
+      } 
+      else if (mode === "final") {
         customDate.style.display = "none";
         versionInput.style.display = "none";
         versionLabel.style.display = "none";
-      } else {
+      } 
+      else {
         customDate.style.display = "none";
         versionInput.style.display = "block";
         versionLabel.style.display = "block";
       }
+
+      updatePreview();
     }
 
     function formatDate(date) {
@@ -136,7 +138,7 @@
       return `${mm}-${dd}`;
     }
 
-    function generateFileName() {
+    function updatePreview() {
       const fileType = document.querySelector('input[name="fileType"]:checked').value;
       const client = document.getElementById("clientName").value.replace(/\s+/g, "");
       const doc = document.getElementById("documentName").value.replace(/\s+/g, "");
@@ -153,13 +155,11 @@
       } 
       else if (dateMode === "custom") {
         const customDateValue = document.getElementById("customDate").value;
-        if (!customDateValue) {
-          alert("Please select a date");
-          return;
+        if (customDateValue) {
+          const selectedDate = new Date(customDateValue + "T12:00:00");
+          datePart = formatDate(selectedDate);
+          versionPart = version ? `_${version}` : "";
         }
-        const selectedDate = new Date(customDateValue + "T12:00:00");
-        datePart = formatDate(selectedDate);
-        versionPart = version ? `_${version}` : "";
       } 
       else {
         datePart = "FINAL";
@@ -170,7 +170,7 @@
       const fileName = `${prefix}${client}_${doc}_${dept}_${datePart}${versionPart}_${initials}`;
 
       document.getElementById("output").innerText = fileName;
-      document.getElementById("success").innerText = "done!";
+      document.getElementById("success").innerText = "";
     }
 
     function copyFileName() {
@@ -181,10 +181,13 @@
         const success = document.getElementById("success");
         success.innerText = "Copied!";
         setTimeout(() => {
-          success.innerText = "done!";
+          success.innerText = "";
         }, 1200);
       });
     }
+
+    // Initialize preview on load
+    updatePreview();
   </script>
 </body>
 </html>
