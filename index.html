@@ -10,7 +10,7 @@
       padding: 40px;
     }
     .container {
-      max-width: 520px;
+      max-width: 540px;
       background: #ffffff;
       padding: 30px;
       border-radius: 8px;
@@ -24,24 +24,31 @@
       margin-top: 15px;
       font-weight: bold;
     }
-    input, select {
+    input {
       width: 100%;
       padding: 8px;
       margin-top: 5px;
     }
     .toggle-group {
       display: flex;
-      gap: 10px;
+      gap: 15px;
       margin-top: 10px;
     }
     .toggle-group label {
       font-weight: normal;
     }
+    .button-group {
+      display: flex;
+      gap: 10px;
+      margin-top: 10px;
+    }
+    .button-group button {
+      flex: 1;
+    }
     button {
-      margin-top: 25px;
+      margin-top: 20px;
       padding: 10px;
-      width: 100%;
-      font-size: 16px;
+      font-size: 15px;
       cursor: pointer;
     }
     .output {
@@ -59,17 +66,11 @@
   <div class="container">
     <h1>Amplified File Name Generator</h1>
 
-    <!-- Internal / External Toggle -->
+    <!-- Internal / External -->
     <label>File Type</label>
     <div class="toggle-group">
-      <label>
-        <input type="radio" name="fileType" value="internal" checked>
-        Internal
-      </label>
-      <label>
-        <input type="radio" name="fileType" value="external">
-        External
-      </label>
+      <label><input type="radio" name="fileType" value="internal" checked> Internal</label>
+      <label><input type="radio" name="fileType" value="external"> External</label>
     </div>
 
     <label>Client Name</label>
@@ -84,12 +85,13 @@
     <label>Owner Initials</label>
     <input type="text" id="initials" placeholder="AP">
 
+    <!-- Date buttons -->
     <label>Date</label>
-    <select id="dateOption">
-      <option value="today">Today</option>
-      <option value="custom">Custom</option>
-      <option value="final">FINAL</option>
-    </select>
+    <div class="button-group">
+      <button type="button" onclick="setDateMode('today')">Today</button>
+      <button type="button" onclick="setDateMode('custom')">Custom</button>
+      <button type="button" onclick="setDateMode('final')">FINAL</button>
+    </div>
 
     <input type="date" id="customDate" style="display:none;">
 
@@ -97,23 +99,27 @@
     <input type="text" id="version" placeholder="v1">
 
     <button onclick="generateFileName()">Generate File Name</button>
+    <button onclick="copyFileName()">Copy File Name</button>
 
     <div class="output" id="output"></div>
     <div class="success" id="success"></div>
   </div>
 
   <script>
-    const dateOption = document.getElementById("dateOption");
-    const customDate = document.getElementById("customDate");
-    const versionInput = document.getElementById("version");
-    const versionLabel = document.getElementById("versionLabel");
+    let dateMode = "today";
 
-    dateOption.addEventListener("change", () => {
-      if (dateOption.value === "custom") {
+    function setDateMode(mode) {
+      dateMode = mode;
+
+      const customDate = document.getElementById("customDate");
+      const versionInput = document.getElementById("version");
+      const versionLabel = document.getElementById("versionLabel");
+
+      if (mode === "custom") {
         customDate.style.display = "block";
         versionInput.style.display = "block";
         versionLabel.style.display = "block";
-      } else if (dateOption.value === "final") {
+      } else if (mode === "final") {
         customDate.style.display = "none";
         versionInput.style.display = "none";
         versionLabel.style.display = "none";
@@ -122,7 +128,7 @@
         versionInput.style.display = "block";
         versionLabel.style.display = "block";
       }
-    });
+    }
 
     function formatDate(date) {
       const mm = String(date.getMonth() + 1).padStart(2, "0");
@@ -136,24 +142,26 @@
       const doc = document.getElementById("documentName").value.replace(/\s+/g, "");
       const dept = document.getElementById("department").value.toUpperCase().replace(/\s+/g, "");
       const initials = document.getElementById("initials").value.replace(/\s+/g, "");
-      const version = versionInput.value.replace(/\s+/g, "");
-      const option = dateOption.value;
+      const version = document.getElementById("version").value.replace(/\s+/g, "");
 
       let datePart = "";
       let versionPart = "";
 
-      if (option === "today") {
+      if (dateMode === "today") {
         datePart = formatDate(new Date());
         versionPart = version ? `_${version}` : "";
-      } else if (option === "custom") {
-        if (!customDate.value) {
+      } 
+      else if (dateMode === "custom") {
+        const customDateValue = document.getElementById("customDate").value;
+        if (!customDateValue) {
           alert("Please select a date");
           return;
         }
-        const selectedDate = new Date(customDate.value + "T12:00:00");
+        const selectedDate = new Date(customDateValue + "T12:00:00");
         datePart = formatDate(selectedDate);
         versionPart = version ? `_${version}` : "";
-      } else {
+      } 
+      else {
         datePart = "FINAL";
       }
 
@@ -163,6 +171,19 @@
 
       document.getElementById("output").innerText = fileName;
       document.getElementById("success").innerText = "done!";
+    }
+
+    function copyFileName() {
+      const output = document.getElementById("output").innerText;
+      if (!output) return;
+
+      navigator.clipboard.writeText(output).then(() => {
+        const success = document.getElementById("success");
+        success.innerText = "Copied!";
+        setTimeout(() => {
+          success.innerText = "done!";
+        }, 1200);
+      });
     }
   </script>
 </body>
