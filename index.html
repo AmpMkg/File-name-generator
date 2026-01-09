@@ -1,196 +1,169 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Amplified File Name Generator</title>
   <style>
     body {
       font-family: Arial, sans-serif;
-      max-width: 700px;
-      margin: 40px auto;
-      padding: 0 20px;
-      line-height: 1.6;
+      background: #f7f7f7;
+      padding: 40px;
     }
-
+    .container {
+      max-width: 520px;
+      background: #ffffff;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+    }
     h1 {
-      text-align: center;
+      margin-top: 0;
     }
-
     label {
       display: block;
-      margin-top: 18px;
+      margin-top: 15px;
       font-weight: bold;
     }
-
-    input[type="text"],
-    input[type="date"] {
+    input, select {
       width: 100%;
       padding: 8px;
       margin-top: 5px;
-      box-sizing: border-box;
     }
-
-    .radio-group {
-      margin-top: 5px;
-    }
-
-    .output {
-      margin-top: 25px;
-      font-size: 1.1em;
-      font-weight: bold;
-      background: #f4f4f4;
-      padding: 12px;
-      border-radius: 5px;
+    .toggle-group {
       display: flex;
-      justify-content: space-between;
-      align-items: center;
       gap: 10px;
-      word-break: break-all;
+      margin-top: 10px;
     }
-
+    .toggle-group label {
+      font-weight: normal;
+    }
     button {
-      padding: 8px 12px;
+      margin-top: 25px;
+      padding: 10px;
+      width: 100%;
+      font-size: 16px;
       cursor: pointer;
     }
-
+    .output {
+      margin-top: 20px;
+      font-weight: bold;
+      word-break: break-all;
+    }
     .success {
       color: green;
       margin-top: 10px;
-      font-weight: bold;
     }
   </style>
 </head>
 <body>
+  <div class="container">
+    <h1>Amplified File Name Generator</h1>
 
-  <h1>Amplified File Name Generator</h1>
+    <!-- Internal / External Toggle -->
+    <label>File Type</label>
+    <div class="toggle-group">
+      <label>
+        <input type="radio" name="fileType" value="internal" checked>
+        Internal
+      </label>
+      <label>
+        <input type="radio" name="fileType" value="external">
+        External
+      </label>
+    </div>
 
-  <label>Client Name</label>
-  <input type="text" id="clientName" placeholder="e.g., Heineken">
+    <label>Client Name</label>
+    <input type="text" id="clientName" placeholder="Heineken">
 
-  <label>Document Name</label>
-  <input type="text" id="docName" placeholder="e.g., Event Recap Deck">
+    <label>Document Name</label>
+    <input type="text" id="documentName" placeholder="EventRecap">
 
-  <label>Status</label>
-  <div class="radio-group">
-    <input type="radio" name="status" id="today" checked> Today’s Date
-    <input type="radio" name="status" id="custom"> Custom Date
-    <input type="radio" name="status" id="final"> FINAL
+    <label>Department</label>
+    <input type="text" id="department" placeholder="CST">
+
+    <label>Owner Initials</label>
+    <input type="text" id="initials" placeholder="AP">
+
+    <label>Date</label>
+    <select id="dateOption">
+      <option value="today">Today</option>
+      <option value="custom">Custom</option>
+      <option value="final">FINAL</option>
+    </select>
+
+    <input type="date" id="customDate" style="display:none;">
+
+    <label id="versionLabel">Version Number</label>
+    <input type="text" id="version" placeholder="v1">
+
+    <button onclick="generateFileName()">Generate File Name</button>
+
+    <div class="output" id="output"></div>
+    <div class="success" id="success"></div>
   </div>
-
-  <input type="date" id="customDate" style="display:none; margin-top:10px;">
-
-  <div id="versionContainer">
-    <label>Version Number</label>
-    <input type="text" id="version" placeholder="e.g., V01">
-  </div>
-
-  <label>Department</label>
-  <input type="text" id="department" placeholder="CST">
-
-  <label>Owner Initials</label>
-  <input type="text" id="owner" placeholder="AP">
-
-  <div class="output">
-    <span id="generatedName">Your file name will appear here</span>
-    <button id="copyBtn">Copy</button>
-  </div>
-
-  <div class="success" id="successMsg" style="display:none;">Done!</div>
 
   <script>
-    const clientNameInput = document.getElementById('clientName');
-    const docNameInput = document.getElementById('docName');
-    const todayRadio = document.getElementById('today');
-    const customRadio = document.getElementById('custom');
-    const finalRadio = document.getElementById('final');
-    const customDateInput = document.getElementById('customDate');
-    const versionInput = document.getElementById('version');
-    const versionContainer = document.getElementById('versionContainer');
-    const departmentInput = document.getElementById('department');
-    const ownerInput = document.getElementById('owner');
-    const output = document.getElementById('generatedName');
-    const copyBtn = document.getElementById('copyBtn');
-    const successMsg = document.getElementById('successMsg');
+    const dateOption = document.getElementById("dateOption");
+    const customDate = document.getElementById("customDate");
+    const versionInput = document.getElementById("version");
+    const versionLabel = document.getElementById("versionLabel");
 
-    function toTitleCase(str) {
-      return str.replace(/\w\S*/g, txt =>
-        txt.charAt(0).toUpperCase() + txt.slice(1).toLowerCase()
-      );
-    }
+    dateOption.addEventListener("change", () => {
+      if (dateOption.value === "custom") {
+        customDate.style.display = "block";
+        versionInput.style.display = "block";
+        versionLabel.style.display = "block";
+      } else if (dateOption.value === "final") {
+        customDate.style.display = "none";
+        versionInput.style.display = "none";
+        versionLabel.style.display = "none";
+      } else {
+        customDate.style.display = "none";
+        versionInput.style.display = "block";
+        versionLabel.style.display = "block";
+      }
+    });
 
-    function removeSpaces(str) {
-      return str.replace(/\s+/g, '');
-    }
-
-    function formatDate(dateStr) {
-      if (!dateStr) return 'MM-DD';
-      const parts = dateStr.split('-'); // YYYY-MM-DD
-      return `${parts[1]}-${parts[2]}`;
+    function formatDate(date) {
+      const mm = String(date.getMonth() + 1).padStart(2, "0");
+      const dd = String(date.getDate()).padStart(2, "0");
+      return `${mm}-${dd}`;
     }
 
     function generateFileName() {
-      const client = removeSpaces(clientNameInput.value); // exactly as typed
-      const doc = removeSpaces(toTitleCase(docNameInput.value));
-      const dept = removeSpaces(departmentInput.value.toUpperCase());
-      const owner = removeSpaces(ownerInput.value);
+      const fileType = document.querySelector('input[name="fileType"]:checked').value;
+      const client = document.getElementById("clientName").value.replace(/\s+/g, "");
+      const doc = document.getElementById("documentName").value.replace(/\s+/g, "");
+      const dept = document.getElementById("department").value.toUpperCase().replace(/\s+/g, "");
+      const initials = document.getElementById("initials").value.replace(/\s+/g, "");
+      const version = versionInput.value.replace(/\s+/g, "");
+      const option = dateOption.value;
 
-      let status = '';
+      let datePart = "";
+      let versionPart = "";
 
-      if (todayRadio.checked) {
-        const today = new Date();
-        const mm = String(today.getMonth() + 1).padStart(2, '0');
-        const dd = String(today.getDate()).padStart(2, '0');
-        status = `${mm}-${dd}`;
-        customDateInput.style.display = 'none';
-        versionContainer.style.display = 'block';
-      } else if (customRadio.checked) {
-        customDateInput.style.display = 'block';
-        status = formatDate(customDateInput.value);
-        versionContainer.style.display = 'block';
-      } else if (finalRadio.checked) {
-        status = 'FINAL';
-        customDateInput.style.display = 'none';
-        versionContainer.style.display = 'none';
+      if (option === "today") {
+        datePart = formatDate(new Date());
+        versionPart = version ? `_${version}` : "";
+      } else if (option === "custom") {
+        if (!customDate.value) {
+          alert("Please select a date");
+          return;
+        }
+        const selectedDate = new Date(customDate.value + "T12:00:00");
+        datePart = formatDate(selectedDate);
+        versionPart = version ? `_${version}` : "";
+      } else {
+        datePart = "FINAL";
       }
 
-      const version =
-        versionContainer.style.display === 'none'
-          ? ''
-          : removeSpaces(versionInput.value);
+      const prefix = fileType === "external" ? "AMP_" : "";
 
-      const versionPart = version ? `_${version}` : '';
+      const fileName = `${prefix}${client}_${doc}_${dept}_${datePart}${versionPart}_${initials}`;
 
-      output.textContent =
-        `${client}_${doc}_${dept}_${status}${versionPart}_${owner}`;
-
-      successMsg.style.display = 'none';
+      document.getElementById("output").innerText = fileName;
+      document.getElementById("success").innerText = "done!";
     }
-
-    [
-      clientNameInput,
-      docNameInput,
-      versionInput,
-      departmentInput,
-      ownerInput
-    ].forEach(input => input.addEventListener('input', generateFileName));
-
-    [todayRadio, customRadio, finalRadio].forEach(radio =>
-      radio.addEventListener('change', generateFileName)
-    );
-
-    customDateInput.addEventListener('change', generateFileName);
-
-    copyBtn.addEventListener('click', () => {
-      navigator.clipboard.writeText(output.textContent).then(() => {
-        successMsg.style.display = 'block';
-        setTimeout(() => {
-          successMsg.style.display = 'none';
-        }, 2000);
-      });
-    });
-
-    generateFileName();
   </script>
-
 </body>
 </html>
